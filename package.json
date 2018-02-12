@@ -1,0 +1,33 @@
+{
+  "name": "reproductorMultimedia",
+  "version": "0.0.1",
+  "description": "",
+  "main": "bundle.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prod": "webpack --config webpack.config.js",
+    "pack": "webpack-dev-server --config webpack.config.js --devtool source-map",
+    "doc": "jsdoc ./src -r -d ./doc/"
+  },
+  "author": "ayoze",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "css-loader": "^0.28.8",
+    "file-loader": "^1.1.6",
+    "json-loader": "^0.5.7",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.6",
+    "script-loader": "^0.7.2",
+    "style-loader": "^0.19.1",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.9.7"
+  },
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "toastr": "^2.1.4"
+  }
+}

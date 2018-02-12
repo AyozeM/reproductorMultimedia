@@ -1,0 +1,33 @@
+$alturaBarras : 10vh;
+section{
+    height: 100vh-($alturaBarras*2);
+    display: flex;
+    flex-wrap: wrap;
+}
+header{
+    border:thin solid red;
+    height: $alturaBarras;
+}
+.viewer{
+    border:thin solid green;
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+    & .controls{
+        border:thin solid yellow;
+        height: 10%;
+    }
+    & video{
+        flex-grow: 1;
+    }
+}
+.playList{
+    border:thin solid violet;
+    width: 25%;
+    height: 100%;
+}
+
+footer{
+    border: thin solid blue;
+    height: $alturaBarras;
+}
