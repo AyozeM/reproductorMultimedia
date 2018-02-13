@@ -1,0 +1,56 @@
+{
+    "audio":[
+        {
+            "name":"Back in Black",            
+            "url":"/audio/AC_DC-BackInBlack.mp3",
+            "poster":"/img/acdc.jpg"
+        },
+        {
+            "name":"Highway to Hell",            
+            "url":"/audio/AC_DC-HighwayToHell.mp3",
+            "poster":"/img/acdc.jpg"
+        },
+        {
+            "name":"Don't worry be Happy",            
+            "url":"/audio/BobMarley-Don'tworrybeHappy.mp3",
+            "poster":"/img/bobmarley.jpg"
+        },
+        {
+            "name":"Is this love",            
+            "url":"/audio/BobMarley-IsthisLove.mp3",
+            "poster":"/img/bobmarley.jpg"
+        },
+        {
+            "name":"No woman no cry",            
+            "url":"/audio/BobMarleyNoWomannocry.mp3",
+            "poster":"/img/bobmarley.jpg"
+        }
+    ],
+    "video":[
+        {
+            "name":"Truck Racer 3D",            
+            "url":"/video/gamejs.mp4",
+            "poster":""
+        },
+        {
+            "name":"Bon Jovi - It's my life",
+            "url":"/video/BonJovi-It'sMyLife.mp4",
+            "poster":""
+        },
+        {
+            "name":"Eagles - Hotel California",
+            "url":"/video/Eagles-HotelCalifornia.mp4",
+            "poster":""
+        },
+        {
+            "name":"Red Hot Chilli Pepers - Californication",
+            "url":"/video/RedHotChiliPeppers-Californication.mp4",
+            "poster":""
+        },
+        {
+            "name":"Survivor - Eye of the Tiger",
+            "url":"/video/Survivor-EyeOfTheTiger.mp4",
+            "poster":""
+        }
+    ]
+}

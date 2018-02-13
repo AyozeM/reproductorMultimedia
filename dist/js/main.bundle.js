@@ -68,7 +68,7 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(1);
-module.exports = __webpack_require__(3);
+module.exports = __webpack_require__(4);
 
 
 /***/ }),
@@ -80,33 +80,137 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
 
-__WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).ready(()=>{
-    getMultimedia();
-    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playList").on("click","div",e=>{
-        alert(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget).find("p").data("url"));
-    })
-});
+let data = __webpack_require__(3);
+let index = 0;
+let actualPlayed, viewer, playlist, progressBar,totalDuration,actualProgress;
 
-const createHTML = data => __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<div>").append(
-    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<p data-url="${data.url}">${data.name}</p>`)
-)
-const getMultimedia = () =>{
-    __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.ajax({
-        url:'../data/data.json',
-        success:response=>{
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playList").find(".preloader").remove();
-            response.audio.map(e=>createHTML(e).append('<i class="fas fa-headphones"></i>').appendTo(".playList"));
-            response.video.map(e=>createHTML(e).append('<i class="fas fa-video"></i>').appendTo(".playList"));
-        },
-        beforeSend:()=>{
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playList").append(
-                __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<p class="preloader">Cargando contenido...</p>`)
-            );
-        },
-        error:()=>{
-            alert("hubo un error");
-        }
+__WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).ready(()=>{
+    viewer = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".viewer");
+    progressBar =  __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".progressedTimeBar");
+    totalDuration = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".totalTime");
+    actualProgress = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".actualProgress");
+    getMultimedia();
+    playlist = [].slice.call(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playList").children());
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playList").on("click","p",e=>{
+        index = playlist.findIndex(y=>y==e.currentTarget);
+        playerManager(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget));
     });
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#next").click(()=>{
+        timeAdvance();
+    })
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#prev").click(()=>{
+        timeBack();
+    })
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#play-pause").click(e=>{
+        let control = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget);
+        let newIcon;
+        let state;
+        control.children().remove();
+        state = control.data("state");
+        if( state == "play"){
+            newIcon = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-pause"></i>`);            
+            state = "pause";            
+        }else{
+            newIcon = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-play"></i>`);
+            state = "play";
+        }
+        control.data("state",state);
+        playPause(state);
+        newIcon.appendTo(control);
+    });
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".progressBar").click(e=>{
+        const barWidth = 75*innerWidth/100;
+        let newTime = e.screenX/barWidth*100;
+        actualPlayed.currentTime = newTime*actualPlayed.duration/100;
+        progressBar.css("width",`${newTime}%`);
+    });
+    loopController();
+});
+const loopController = () =>{
+    if(index > playlist.length -1){
+        index = 0;
+    }
+    playerManager(playlist[index]);
+}
+const playerManager = e=>{
+    if(actualPlayed != undefined){
+        actualPlayed.pause();
+        viewer.children()[0].remove();   
+    }
+    e = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e);
+    switch(e.attr("class")){
+        case "audio":
+            viewer.prepend(__WEBPACK_IMPORTED_MODULE_0_jquery___default()("<img>",{src:`media${e.data("poster")}`}));
+            actualPlayed = new Audio(`media${e.data("url")}`);
+            player();
+            break;
+        case "video":
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<video>").prependTo(viewer);
+            actualPlayed = document.querySelector("video");
+            actualPlayed.src = `media${e.data("url")}`;
+            player();
+            break;
+    }
+}
+const createHTML = (data,type) =>__WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<p class="${type}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
+
+const getMultimedia = () =>{
+    data.audio.map(e=>createHTML(e,"audio"));
+    data.video.map(e=>createHTML(e,"video"));
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".audio").prepend(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-headphones"></i>`))
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".video").prepend(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-film"></i>`))
+}
+/**
+ * Pausa o reanuda
+ * @param {string} state --> stado actual.
+ */
+const playPause = state =>{
+    if(state == "play"){
+        actualPlayed.pause();
+    }else{
+        actualPlayed.play();
+    }
+}
+const player = () =>{
+    actualPlayed.play();
+    actualPlayed.addEventListener("timeupdate",()=>{        
+        updateProgressBar(actualPlayed.currentTime,actualPlayed.duration);
+    });
+    actualPlayed.addEventListener("ended",()=>{
+        index++;
+        loopController();
+    });
+}
+/**
+ * Actualiza la barra de progreso
+ * @param {float} currentTime --> segundo actual
+ * @param {float} duration --> duracion total
+ */
+const updateProgressBar = (currentTime,duration)=>{
+    totalDuration.text(timeConverter(duration));
+    actualProgress.text(timeConverter(currentTime));
+    progressBar.css("width",`${(currentTime/duration)*100}%`);
+    timeConverter(duration);
+}
+const timeConverter = time =>{
+	let minutes = Math.trunc(time/60);
+    let seconds = Math.trunc(((time/60 - minutes) * 30) / 0.5)
+    if(seconds<10){
+        seconds = '0'+seconds;
+    }
+    return `${minutes}:${seconds}`
+}
+/**
+ * Avanza el tiempo 10 segundos
+ */
+const timeAdvance = () =>{
+    actualPlayed.currentTime +=10;
+}
+/**
+ * Retrocede el tiempo 10 segundos
+ */
+const timeBack = () =>{
+    actualPlayed.currentTime -=10;
 }
 
 /***/ }),
@@ -10482,12 +10586,18 @@ return jQuery;
 
 /***/ }),
 /* 3 */
+/***/ (function(module, exports) {
+
+module.exports = {"audio":[{"name":"Back in Black","url":"/audio/AC_DC-BackInBlack.mp3","poster":"/img/acdc.jpg"},{"name":"Highway to Hell","url":"/audio/AC_DC-HighwayToHell.mp3","poster":"/img/acdc.jpg"},{"name":"Don't worry be Happy","url":"/audio/BobMarley-Don'tworrybeHappy.mp3","poster":"/img/bobmarley.jpg"},{"name":"Is this love","url":"/audio/BobMarley-IsthisLove.mp3","poster":"/img/bobmarley.jpg"},{"name":"No woman no cry","url":"/audio/BobMarleyNoWomannocry.mp3","poster":"/img/bobmarley.jpg"}],"video":[{"name":"Truck Racer 3D","url":"/video/gamejs.mp4","poster":""},{"name":"Bon Jovi - It's my life","url":"/video/BonJovi-It'sMyLife.mp4","poster":""},{"name":"Eagles - Hotel California","url":"/video/Eagles-HotelCalifornia.mp4","poster":""},{"name":"Red Hot Chilli Pepers - Californication","url":"/video/RedHotChiliPeppers-Californication.mp4","poster":""},{"name":"Survivor - Eye of the Tiger","url":"/video/Survivor-EyeOfTheTiger.mp4","poster":""}]}
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(4);
+var content = __webpack_require__(5);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -10495,7 +10605,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(6)(content, options);
+var update = __webpack_require__(7)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -10512,21 +10622,21 @@ if(false) {
 }
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(5)(false);
+exports = module.exports = __webpack_require__(6)(false);
 // imports
 
 
 // module
-exports.push([module.i, "* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; }\n\nsection {\n  height: 80vh;\n  display: flex;\n  flex-wrap: wrap; }\n\nheader {\n  border: thin solid red;\n  height: 10vh; }\n\n.viewer {\n  border: thin solid green;\n  width: 75%;\n  display: flex;\n  flex-direction: column; }\n  .viewer .controls {\n    border: thin solid yellow;\n    height: 10%; }\n  .viewer video {\n    flex-grow: 1; }\n\n.playList {\n  border: thin solid violet;\n  width: 25%;\n  height: 100%; }\n\nfooter {\n  border: thin solid blue;\n  height: 10vh; }\n", ""]);
+exports.push([module.i, "* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; }\n\nsection {\n  height: 80vh;\n  display: flex;\n  flex-wrap: wrap; }\n\nheader {\n  border: thin solid red;\n  height: 10vh; }\n\n.viewer {\n  border: thin solid green;\n  width: 75%;\n  display: flex;\n  flex-direction: column; }\n  .viewer .controls {\n    border: thin solid yellow;\n    height: 10%; }\n  .viewer video, .viewer img {\n    height: 90%; }\n\n.playList {\n  border: thin solid violet;\n  width: 25%;\n  height: 100%; }\n\nfooter {\n  border: thin solid blue;\n  height: 10vh; }\n\n.controls span {\n  cursor: pointer; }\n\n.controls .progressBar {\n  height: 10px;\n  border: thin solid;\n  display: flex; }\n  .controls .progressBar .progressedTimeBar {\n    width: 0;\n    background: black; }\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 /*
@@ -10608,7 +10718,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -10664,7 +10774,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(7);
+var	fixUrls = __webpack_require__(8);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -10980,7 +11090,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports) {
 
 

@@ -13,10 +13,25 @@
     </header>
     <section>
         <article class="viewer">
-            <video src=""></video>
             <article class="controls">
-                <i class="fas fa-play"></i>
-                <i class="fas fa-pause"></i>
+                <span id="prev">
+                    <i class="fas fa-step-backward"></i>
+                </span>
+                <span id="play-pause" data-state="play">
+                    <i class="fas fa-pause"></i>
+                </span>
+
+                <span id="next">
+                    <i class="fas fa-step-backward" data-fa-transform="rotate-180"></i>
+                </span>
+                <div class="progressBar">
+                    <div class="progressedTimeBar"></div>
+                </div>
+                <span>
+                    <span class="actualProgress"></span>
+                    /
+                    <span class="totalTime"></span>
+                </span>
             </article>
         </article>
         <article class="playList">

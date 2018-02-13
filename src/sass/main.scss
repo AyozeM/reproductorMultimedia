@@ -1,2 +1,17 @@
 @import '_reset.scss';
 @import '_layout.scss';
+
+.controls{
+    & span{
+        cursor: pointer;
+    }
+    & .progressBar{
+        height: 10px;
+        border: thin solid;
+        display: flex;
+        & .progressedTimeBar{
+            width:0;
+            background: black;
+        }
+    }
+}
