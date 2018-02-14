@@ -21,36 +21,96 @@ $(document).ready(()=>{
         timeBack();
     })
     $("#play-pause").click(e=>{
-        let control = $(e.currentTarget);
-        let newIcon;
-        let state;
-        control.children().remove();
-        state = control.data("state");
-        if( state == "play"){
-            newIcon = $(`<i class="fas fa-pause"></i>`);            
-            state = "pause";            
-        }else{
-            newIcon = $(`<i class="fas fa-play"></i>`);
-            state = "play";
-        }
-        control.data("state",state);
-        playPause(state);
-        newIcon.appendTo(control);
+        playPauseAnimation(e.currentTarget);
     });
-    $(".progressBar").click(e=>{
-        const barWidth = 75*innerWidth/100;
-        let newTime = e.screenX/barWidth*100;
-        actualPlayed.currentTime = newTime*actualPlayed.duration/100;
-        progressBar.css("width",`${newTime}%`);
+    $(".progressBar").click(progressBarController);
+    $(".progressBar").mousedown(e=>{
+        progressBarController(e);
+        $(e.currentTarget).on("mousemove",progressBarController);
+    })
+    
+    $("#volumeUp").click(e=>{
+        actualPlayed.volume+=.1;
+        $("#volumeController").find("div").css("width",`${actualPlayed.volume*100}%`)
+    });
+    $("#volumeDown").click(e=>{
+        actualPlayed.volume-=.1;
+        $("#volumeController").find("div").css("width",`${actualPlayed.volume*100}%`)
+    });
+
+    $("#volumeController").click(volumeController);
+    $("#volumeController").mousedown(e=>{
+        $(e.currentTarget).on("mousemove",volumeController);
+    });
+    viewer.mouseup(e=>{
+        $("#volumeController").off("mousemove",volumeController);
+        $(".progressBar").off("mousemove",progressBarController);
+    })
+    viewer.on("click","img,video",()=>{
+        playPauseAnimation($("#play-pause"));
     });
     loopController();
 });
+/**
+ * modifica la barra de la linea del tiempo
+ * @param {event} e
+ */
+const progressBarController = e=>{
+    const target = $(e.currentTarget);
+    let position = target.offset().left;
+    let pointerPosition = e.pageX-position;
+    let width = $(e.currentTarget).width();
+    let newTime = (pointerPosition*100) / width;
+    progressBar.css("width",`${newTime}%`);
+    actualPlayed.currentTime = newTime*actualPlayed.duration/100;
+}
+/**
+ * Modifica el volumen (arrastrando o clickando)
+ * @param {event} e 
+ */
+const volumeController = e=>{
+    const target = $(e.currentTarget);
+    let position = target.offset().left;
+    let pointerPosition = e.pageX-position;
+    let width = $(e.currentTarget).width();
+    let volumeDraw = (pointerPosition*100) / width;
+    $("#volumeController").find("div").css("width",`${volumeDraw}%`)
+    actualPlayed.volume = volumeDraw/100;
+}
+/**
+ * Animacion que alterna los simoblos de play y pause
+ * @param {event} e 
+ */
+const playPauseAnimation = e=>{
+    let control = $(e);
+    let newIcon;
+    let state;
+    control.children().remove();
+    state = control.data("state");
+    if( state == "play"){
+        newIcon = $(`<i class="fas fa-pause"></i>`);            
+        state = "pause";            
+    }else{
+        newIcon = $(`<i class="fas fa-play"></i>`);
+        state = "play";
+    }
+    control.data("state",state);
+    playPause(state);
+    newIcon.appendTo(control);
+}
+/**
+ * Se encarga de que se repita la playlist
+ */
 const loopController = () =>{
     if(index > playlist.length -1){
         index = 0;
     }
     playerManager(playlist[index]);
 }
+/**
+ * se encarga de limpiar el audio/video anterior y poner el nuevo
+ * @param {target} e 
+ */
 const playerManager = e=>{
     if(actualPlayed != undefined){
         actualPlayed.pause();
@@ -71,6 +131,11 @@ const playerManager = e=>{
             break;
     }
 }
+/**
+ * Se encarga de crear el html en la barra de playlist
+ * @param {object} data 
+ * @param {string} type 
+ */
 const createHTML = (data,type) =>$(`<p class="${type}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
 
 const getMultimedia = () =>{
@@ -90,11 +155,20 @@ const playPause = state =>{
         actualPlayed.play();
     }
 }
+/**
+ * pone a funcionar el audio/video, tambien encapsula los eventos de actualizacion del tiempo y fin del archivo
+ */
 const player = () =>{
     actualPlayed.play();
+    /**
+     * cada vez que se modifica el tiempo se modifica la barra de progreso
+     */
     actualPlayed.addEventListener("timeupdate",()=>{        
         updateProgressBar(actualPlayed.currentTime,actualPlayed.duration);
     });
+    /**
+     * llama al gestor del bucle al acabar el archivo
+     */
     actualPlayed.addEventListener("ended",()=>{
         index++;
         loopController();
@@ -111,6 +185,10 @@ const updateProgressBar = (currentTime,duration)=>{
     progressBar.css("width",`${(currentTime/duration)*100}%`);
     timeConverter(duration);
 }
+/**
+ * Se encarga de convertir cantidad de segundos en su equivalente en minutos y segundos
+ * @param {*} time 
+ */
 const timeConverter = time =>{
 	let minutes = Math.trunc(time/60);
     let seconds = Math.trunc(((time/60 - minutes) * 30) / 0.5)

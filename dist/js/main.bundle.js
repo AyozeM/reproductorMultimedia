@@ -102,36 +102,96 @@ __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).ready(()=>{
         timeBack();
     })
     __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#play-pause").click(e=>{
-        let control = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget);
-        let newIcon;
-        let state;
-        control.children().remove();
-        state = control.data("state");
-        if( state == "play"){
-            newIcon = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-pause"></i>`);            
-            state = "pause";            
-        }else{
-            newIcon = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-play"></i>`);
-            state = "play";
-        }
-        control.data("state",state);
-        playPause(state);
-        newIcon.appendTo(control);
+        playPauseAnimation(e.currentTarget);
     });
-    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".progressBar").click(e=>{
-        const barWidth = 75*innerWidth/100;
-        let newTime = e.screenX/barWidth*100;
-        actualPlayed.currentTime = newTime*actualPlayed.duration/100;
-        progressBar.css("width",`${newTime}%`);
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".progressBar").click(progressBarController);
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".progressBar").mousedown(e=>{
+        progressBarController(e);
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget).on("mousemove",progressBarController);
+    })
+    
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeUp").click(e=>{
+        actualPlayed.volume+=.1;
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeController").find("div").css("width",`${actualPlayed.volume*100}%`)
+    });
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeDown").click(e=>{
+        actualPlayed.volume-=.1;
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeController").find("div").css("width",`${actualPlayed.volume*100}%`)
+    });
+
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeController").click(volumeController);
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeController").mousedown(e=>{
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget).on("mousemove",volumeController);
+    });
+    viewer.mouseup(e=>{
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeController").off("mousemove",volumeController);
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".progressBar").off("mousemove",progressBarController);
+    })
+    viewer.on("click","img,video",()=>{
+        playPauseAnimation(__WEBPACK_IMPORTED_MODULE_0_jquery___default()("#play-pause"));
     });
     loopController();
 });
+/**
+ * modifica la barra de la linea del tiempo
+ * @param {event} e
+ */
+const progressBarController = e=>{
+    const target = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget);
+    let position = target.offset().left;
+    let pointerPosition = e.pageX-position;
+    let width = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget).width();
+    let newTime = (pointerPosition*100) / width;
+    progressBar.css("width",`${newTime}%`);
+    actualPlayed.currentTime = newTime*actualPlayed.duration/100;
+}
+/**
+ * Modifica el volumen (arrastrando o clickando)
+ * @param {event} e 
+ */
+const volumeController = e=>{
+    const target = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget);
+    let position = target.offset().left;
+    let pointerPosition = e.pageX-position;
+    let width = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget).width();
+    let volumeDraw = (pointerPosition*100) / width;
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeController").find("div").css("width",`${volumeDraw}%`)
+    actualPlayed.volume = volumeDraw/100;
+}
+/**
+ * Animacion que alterna los simoblos de play y pause
+ * @param {event} e 
+ */
+const playPauseAnimation = e=>{
+    let control = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e);
+    let newIcon;
+    let state;
+    control.children().remove();
+    state = control.data("state");
+    if( state == "play"){
+        newIcon = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-pause"></i>`);            
+        state = "pause";            
+    }else{
+        newIcon = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-play"></i>`);
+        state = "play";
+    }
+    control.data("state",state);
+    playPause(state);
+    newIcon.appendTo(control);
+}
+/**
+ * Se encarga de que se repita la playlist
+ */
 const loopController = () =>{
     if(index > playlist.length -1){
         index = 0;
     }
     playerManager(playlist[index]);
 }
+/**
+ * se encarga de limpiar el audio/video anterior y poner el nuevo
+ * @param {target} e 
+ */
 const playerManager = e=>{
     if(actualPlayed != undefined){
         actualPlayed.pause();
@@ -152,6 +212,11 @@ const playerManager = e=>{
             break;
     }
 }
+/**
+ * Se encarga de crear el html en la barra de playlist
+ * @param {object} data 
+ * @param {string} type 
+ */
 const createHTML = (data,type) =>__WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<p class="${type}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
 
 const getMultimedia = () =>{
@@ -171,11 +236,20 @@ const playPause = state =>{
         actualPlayed.play();
     }
 }
+/**
+ * pone a funcionar el audio/video, tambien encapsula los eventos de actualizacion del tiempo y fin del archivo
+ */
 const player = () =>{
     actualPlayed.play();
+    /**
+     * cada vez que se modifica el tiempo se modifica la barra de progreso
+     */
     actualPlayed.addEventListener("timeupdate",()=>{        
         updateProgressBar(actualPlayed.currentTime,actualPlayed.duration);
     });
+    /**
+     * llama al gestor del bucle al acabar el archivo
+     */
     actualPlayed.addEventListener("ended",()=>{
         index++;
         loopController();
@@ -192,6 +266,10 @@ const updateProgressBar = (currentTime,duration)=>{
     progressBar.css("width",`${(currentTime/duration)*100}%`);
     timeConverter(duration);
 }
+/**
+ * Se encarga de convertir cantidad de segundos en su equivalente en minutos y segundos
+ * @param {*} time 
+ */
 const timeConverter = time =>{
 	let minutes = Math.trunc(time/60);
     let seconds = Math.trunc(((time/60 - minutes) * 30) / 0.5)
@@ -10630,7 +10708,7 @@ exports = module.exports = __webpack_require__(6)(false);
 
 
 // module
-exports.push([module.i, "* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; }\n\nsection {\n  height: 80vh;\n  display: flex;\n  flex-wrap: wrap; }\n\nheader {\n  border: thin solid red;\n  height: 10vh; }\n\n.viewer {\n  border: thin solid green;\n  width: 75%;\n  display: flex;\n  flex-direction: column; }\n  .viewer .controls {\n    border: thin solid yellow;\n    height: 10%; }\n  .viewer video, .viewer img {\n    height: 90%; }\n\n.playList {\n  border: thin solid violet;\n  width: 25%;\n  height: 100%; }\n\nfooter {\n  border: thin solid blue;\n  height: 10vh; }\n\n.controls span {\n  cursor: pointer; }\n\n.controls .progressBar {\n  height: 10px;\n  border: thin solid;\n  display: flex; }\n  .controls .progressBar .progressedTimeBar {\n    width: 0;\n    background: black; }\n", ""]);
+exports.push([module.i, "* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; }\n\nsection {\n  height: 80vh;\n  display: flex;\n  flex-wrap: wrap; }\n\nheader {\n  border: thin solid red;\n  height: 10vh; }\n\n.viewer {\n  border: thin solid green;\n  width: 75%;\n  display: flex;\n  flex-direction: column; }\n  .viewer .controls {\n    border: thin solid yellow;\n    height: 15%; }\n  .viewer video, .viewer img {\n    height: 85%; }\n\n.playList {\n  border: thin solid violet;\n  width: 25%;\n  height: 100%; }\n\nfooter {\n  border: thin solid blue;\n  height: 10vh; }\n\n.controls {\n  user-select: none; }\n  .controls span {\n    cursor: pointer; }\n  .controls .progressBar {\n    height: 10px;\n    border: thin solid;\n    display: flex; }\n    .controls .progressBar:hover:after {\n      content: 'x';\n      position: relative;\n      height: 15px;\n      width: 15px;\n      top: -3px;\n      left: -2.5px;\n      color: transparent;\n      border-radius: 50%;\n      background-color: black; }\n    .controls .progressBar .progressedTimeBar {\n      width: 0;\n      background: black; }\n\nheader img {\n  height: 10vh;\n  margin-left: 1%; }\n\n#volumeController {\n  display: inline-block;\n  position: relative;\n  height: 50%; }\n  #volumeController svg {\n    height: 100%; }\n  #volumeController #hidden {\n    fill: white; }\n  #volumeController div {\n    position: absolute;\n    top: 0;\n    left: 0;\n    z-index: -1;\n    width: 100%;\n    height: 100%;\n    background-color: green; }\n", ""]);
 
 // exports
 
