@@ -2,7 +2,13 @@ import $ from 'jquery';
 let data = require('../data/data.json');
 let index = 0;
 let actualPlayed, viewer, playlist, progressBar,totalDuration,actualProgress;
-
+let animationPlayinIcons = [
+    `<i class="fas fa-volume-off"></i>`,
+    `<i class="fas fa-volume-down"></i>`,
+    `<i class="fas fa-volume-up"></i>`
+];
+let animationPlayingIndex = 0;
+let animationPlayingInterval;
 $(document).ready(()=>{
     viewer = $(".viewer");
     progressBar =  $(".progressedTimeBar");
@@ -12,7 +18,7 @@ $(document).ready(()=>{
     playlist = [].slice.call($(".playList").children());
     $(".playList").on("click","p",e=>{
         index = playlist.findIndex(y=>y==e.currentTarget);
-        playerManager($(e.currentTarget));
+        loopController();
     });
     $("#next").click(()=>{
         timeAdvance();
@@ -30,11 +36,13 @@ $(document).ready(()=>{
     })
     
     $("#volumeUp").click(e=>{
-        actualPlayed.volume+=.1;
+        let actualVolume  = actualPlayed.volume + .1;
+        actualPlayed.volume = actualVolume>1?1:actualVolume;
         $("#volumeController").find("div").css("width",`${actualPlayed.volume*100}%`)
     });
-    $("#volumeDown").click(e=>{
-        actualPlayed.volume-=.1;
+    $("#volumeDown").click(e=>{        
+        let actualVolume = actualPlayed.volume-.1;
+        actualPlayed.volume = actualVolume<0?0:actualVolume;
         $("#volumeController").find("div").css("width",`${actualPlayed.volume*100}%`)
     });
 
@@ -42,9 +50,29 @@ $(document).ready(()=>{
     $("#volumeController").mousedown(e=>{
         $(e.currentTarget).on("mousemove",volumeController);
     });
-    viewer.mouseup(e=>{
+    $("body").mouseup(e=>{
         $("#volumeController").off("mousemove",volumeController);
         $(".progressBar").off("mousemove",progressBarController);
+    });
+    $(".playList").on("click","#close",e=>{
+        $(".playList").removeClass("showPlayList").find("#close").remove();
+    });
+    $(".togglePlayList").find("span").click(e=>{
+        $(".playList").addClass("showPlayList").append(
+            $(`<span id="close"><span><i class="fas fa-times"></i></span></span>`)
+        );
+    });
+    $(".captions").on("click","#caption",e=>{
+        let newIcon;
+        if(actualPlayed.textTracks[0].mode == "hidden"){
+            actualPlayed.textTracks[0].mode = "showing";
+            newIcon = $(`<i class="fas fa-closed-captioning"></i>`);
+        }else{
+            actualPlayed.textTracks[0].mode = "hidden"
+            newIcon = $(`<i class="far fa-closed-captioning"></i>`);
+        }
+        $(e.currentTarget).find("svg").remove();
+        $(e.currentTarget).append(newIcon);
     })
     viewer.on("click","img,video",()=>{
         playPauseAnimation($("#play-pause"));
@@ -102,10 +130,18 @@ const playPauseAnimation = e=>{
  * Se encarga de que se repita la playlist
  */
 const loopController = () =>{
+    $(".playing").removeClass("playing");
+    if(animationPlayingInterval != undefined){
+        clearInterval(animationPlayingInterval);
+    }
+    $(".animationPlaying").remove();
+    animationPlayingIndex = 0;
     if(index > playlist.length -1){
         index = 0;
     }
     playerManager(playlist[index]);
+    $(playlist[index]).addClass("playing").append($("<span>",{class:"animationPlaying"}));
+    animationPlayingInterval = setInterval(animationPlayingMove,500);
 }
 /**
  * se encarga de limpiar el audio/video anterior y poner el nuevo
@@ -114,19 +150,32 @@ const loopController = () =>{
 const playerManager = e=>{
     if(actualPlayed != undefined){
         actualPlayed.pause();
-        viewer.children()[0].remove();   
+        viewer.children()[0].remove();  
+        viewer.find("img").remove();
+        viewer.find(".captions").children().remove(); 
     }
     e = $(e);
+    let formats = e.data("formats").split(",");
     switch(e.attr("class")){
-        case "audio":
+        case "audio":        
             viewer.prepend($("<img>",{src:`media${e.data("poster")}`}));
-            actualPlayed = new Audio(`media${e.data("url")}`);
+            $("<audio>").append(
+                formats.map(y=>$("<source>",{src:`media${e.data("url")}.${y}`}))     
+            ).prependTo(viewer);
+            actualPlayed = document.querySelector("audio");
             player();
             break;
         case "video":
-            $("<video>").prependTo(viewer);
+            let captions = e.data("captions").split(",");      
+            $(".captions").append(
+                $(`<span id="caption"><i class="far fa-closed-captioning"></i></span>`)
+            )
+            $("<video>").append(
+                formats.map(y=>$("<source>",{src:`media${e.data("url")}.${y}`}))                
+            ).append(
+                captions.map(z=>$("<track>",{src:`media${z}`,kind:"subtitles",srclang:"es"}))
+            ).prependTo(viewer);
             actualPlayed = document.querySelector("video");
-            actualPlayed.src = `media${e.data("url")}`;
             player();
             break;
     }
@@ -136,7 +185,7 @@ const playerManager = e=>{
  * @param {object} data 
  * @param {string} type 
  */
-const createHTML = (data,type) =>$(`<p class="${type}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
+const createHTML = (data,type) =>$(`<p class="${type}" data-medias="${data.media==null?"":data.media}" data-captions="${data.captions==null?"":data.captions}" data-formats="${data.formats}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
 
 const getMultimedia = () =>{
     data.audio.map(e=>createHTML(e,"audio"));
@@ -208,4 +257,15 @@ const timeAdvance = () =>{
  */
 const timeBack = () =>{
     actualPlayed.currentTime -=10;
+}
+/**
+ * se encarga de la animacion en el archivo que se esta reproduciendo
+ */
+const animationPlayingMove = ()=>{
+    animationPlayingIndex =  animationPlayingIndex < animationPlayinIcons.length?++animationPlayingIndex:0;
+    $(".animationPlaying").children().remove();
+    $(".animationPlaying").append(
+        $(animationPlayinIcons[animationPlayingIndex])
+    )
+    
 }

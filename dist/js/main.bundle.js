@@ -83,7 +83,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 let data = __webpack_require__(3);
 let index = 0;
 let actualPlayed, viewer, playlist, progressBar,totalDuration,actualProgress;
-
+let animationPlayinIcons = [
+    `<i class="fas fa-volume-off"></i>`,
+    `<i class="fas fa-volume-down"></i>`,
+    `<i class="fas fa-volume-up"></i>`
+];
+let animationPlayingIndex = 0;
+let animationPlayingInterval;
 __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).ready(()=>{
     viewer = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".viewer");
     progressBar =  __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".progressedTimeBar");
@@ -93,7 +99,7 @@ __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).ready(()=>{
     playlist = [].slice.call(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playList").children());
     __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playList").on("click","p",e=>{
         index = playlist.findIndex(y=>y==e.currentTarget);
-        playerManager(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget));
+        loopController();
     });
     __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#next").click(()=>{
         timeAdvance();
@@ -111,11 +117,13 @@ __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).ready(()=>{
     })
     
     __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeUp").click(e=>{
-        actualPlayed.volume+=.1;
+        let actualVolume  = actualPlayed.volume + .1;
+        actualPlayed.volume = actualVolume>1?1:actualVolume;
         __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeController").find("div").css("width",`${actualPlayed.volume*100}%`)
     });
-    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeDown").click(e=>{
-        actualPlayed.volume-=.1;
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeDown").click(e=>{        
+        let actualVolume = actualPlayed.volume-.1;
+        actualPlayed.volume = actualVolume<0?0:actualVolume;
         __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeController").find("div").css("width",`${actualPlayed.volume*100}%`)
     });
 
@@ -123,9 +131,29 @@ __WEBPACK_IMPORTED_MODULE_0_jquery___default()(document).ready(()=>{
     __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeController").mousedown(e=>{
         __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget).on("mousemove",volumeController);
     });
-    viewer.mouseup(e=>{
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()("body").mouseup(e=>{
         __WEBPACK_IMPORTED_MODULE_0_jquery___default()("#volumeController").off("mousemove",volumeController);
         __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".progressBar").off("mousemove",progressBarController);
+    });
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playList").on("click","#close",e=>{
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playList").removeClass("showPlayList").find("#close").remove();
+    });
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".togglePlayList").find("span").click(e=>{
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playList").addClass("showPlayList").append(
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<span id="close"><span><i class="fas fa-times"></i></span></span>`)
+        );
+    });
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".captions").on("click","#caption",e=>{
+        let newIcon;
+        if(actualPlayed.textTracks[0].mode == "hidden"){
+            actualPlayed.textTracks[0].mode = "showing";
+            newIcon = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-closed-captioning"></i>`);
+        }else{
+            actualPlayed.textTracks[0].mode = "hidden"
+            newIcon = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="far fa-closed-captioning"></i>`);
+        }
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget).find("svg").remove();
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e.currentTarget).append(newIcon);
     })
     viewer.on("click","img,video",()=>{
         playPauseAnimation(__WEBPACK_IMPORTED_MODULE_0_jquery___default()("#play-pause"));
@@ -183,10 +211,18 @@ const playPauseAnimation = e=>{
  * Se encarga de que se repita la playlist
  */
 const loopController = () =>{
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".playing").removeClass("playing");
+    if(animationPlayingInterval != undefined){
+        clearInterval(animationPlayingInterval);
+    }
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".animationPlaying").remove();
+    animationPlayingIndex = 0;
     if(index > playlist.length -1){
         index = 0;
     }
     playerManager(playlist[index]);
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(playlist[index]).addClass("playing").append(__WEBPACK_IMPORTED_MODULE_0_jquery___default()("<span>",{class:"animationPlaying"}));
+    animationPlayingInterval = setInterval(animationPlayingMove,500);
 }
 /**
  * se encarga de limpiar el audio/video anterior y poner el nuevo
@@ -195,19 +231,32 @@ const loopController = () =>{
 const playerManager = e=>{
     if(actualPlayed != undefined){
         actualPlayed.pause();
-        viewer.children()[0].remove();   
+        viewer.children()[0].remove();  
+        viewer.find("img").remove();
+        viewer.find(".captions").children().remove(); 
     }
     e = __WEBPACK_IMPORTED_MODULE_0_jquery___default()(e);
+    let formats = e.data("formats").split(",");
     switch(e.attr("class")){
-        case "audio":
+        case "audio":        
             viewer.prepend(__WEBPACK_IMPORTED_MODULE_0_jquery___default()("<img>",{src:`media${e.data("poster")}`}));
-            actualPlayed = new Audio(`media${e.data("url")}`);
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<audio>").append(
+                formats.map(y=>__WEBPACK_IMPORTED_MODULE_0_jquery___default()("<source>",{src:`media${e.data("url")}.${y}`}))     
+            ).prependTo(viewer);
+            actualPlayed = document.querySelector("audio");
             player();
             break;
         case "video":
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<video>").prependTo(viewer);
+            let captions = e.data("captions").split(",");      
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".captions").append(
+                __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<span id="caption"><i class="far fa-closed-captioning"></i></span>`)
+            )
+            __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<video>").append(
+                formats.map(y=>__WEBPACK_IMPORTED_MODULE_0_jquery___default()("<source>",{src:`media${e.data("url")}.${y}`}))                
+            ).append(
+                captions.map(z=>__WEBPACK_IMPORTED_MODULE_0_jquery___default()("<track>",{src:`media${z}`,kind:"subtitles",srclang:"es"}))
+            ).prependTo(viewer);
             actualPlayed = document.querySelector("video");
-            actualPlayed.src = `media${e.data("url")}`;
             player();
             break;
     }
@@ -217,7 +266,7 @@ const playerManager = e=>{
  * @param {object} data 
  * @param {string} type 
  */
-const createHTML = (data,type) =>__WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<p class="${type}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
+const createHTML = (data,type) =>__WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<p class="${type}" data-medias="${data.media==null?"":data.media}" data-captions="${data.captions==null?"":data.captions}" data-formats="${data.formats}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
 
 const getMultimedia = () =>{
     data.audio.map(e=>createHTML(e,"audio"));
@@ -289,6 +338,17 @@ const timeAdvance = () =>{
  */
 const timeBack = () =>{
     actualPlayed.currentTime -=10;
+}
+/**
+ * se encarga de la animacion en el archivo que se esta reproduciendo
+ */
+const animationPlayingMove = ()=>{
+    animationPlayingIndex =  animationPlayingIndex < animationPlayinIcons.length?++animationPlayingIndex:0;
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".animationPlaying").children().remove();
+    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".animationPlaying").append(
+        __WEBPACK_IMPORTED_MODULE_0_jquery___default()(animationPlayinIcons[animationPlayingIndex])
+    )
+    
 }
 
 /***/ }),
@@ -10666,7 +10726,7 @@ return jQuery;
 /* 3 */
 /***/ (function(module, exports) {
 
-module.exports = {"audio":[{"name":"Back in Black","url":"/audio/AC_DC-BackInBlack.mp3","poster":"/img/acdc.jpg"},{"name":"Highway to Hell","url":"/audio/AC_DC-HighwayToHell.mp3","poster":"/img/acdc.jpg"},{"name":"Don't worry be Happy","url":"/audio/BobMarley-Don'tworrybeHappy.mp3","poster":"/img/bobmarley.jpg"},{"name":"Is this love","url":"/audio/BobMarley-IsthisLove.mp3","poster":"/img/bobmarley.jpg"},{"name":"No woman no cry","url":"/audio/BobMarleyNoWomannocry.mp3","poster":"/img/bobmarley.jpg"}],"video":[{"name":"Truck Racer 3D","url":"/video/gamejs.mp4","poster":""},{"name":"Bon Jovi - It's my life","url":"/video/BonJovi-It'sMyLife.mp4","poster":""},{"name":"Eagles - Hotel California","url":"/video/Eagles-HotelCalifornia.mp4","poster":""},{"name":"Red Hot Chilli Pepers - Californication","url":"/video/RedHotChiliPeppers-Californication.mp4","poster":""},{"name":"Survivor - Eye of the Tiger","url":"/video/Survivor-EyeOfTheTiger.mp4","poster":""}]}
+module.exports = {"audio":[{"name":"Back in Black","url":"/audio/AC_DC-BackInBlack","poster":"/img/acdc.jpg","formats":["mp3","ogg"]},{"name":"Highway to Hell","url":"/audio/AC_DC-HighwayToHell","poster":"/img/acdc.jpg","formats":["mp3","ogg"]},{"name":"Don't worry be Happy","url":"/audio/BobMarley-Don'tworrybeHappy","poster":"/img/bobmarley.jpg","formats":["mp3","ogg"]},{"name":"Is this love","url":"/audio/BobMarley-IsthisLove","poster":"/img/bobmarley.jpg","formats":["mp3","ogg"]},{"name":"No woman no cry","url":"/audio/BobMarleyNoWomannocry","poster":"/img/bobmarley.jpg","formats":["mp3","ogg"]}],"video":[{"name":"Truck Racer 3D","url":"/video/gamejs","poster":"","formats":["mp4","webm","ogv"],"captions":["/subtitles/test.vtt"],"media":["/video/gamejs.640x800"]},{"name":"Bon Jovi - It's my life","url":"/video/BonJovi-It'sMyLife","poster":"","formats":["mp4","webm","ogv"]},{"name":"Eagles - Hotel California","url":"/video/Eagles-HotelCalifornia","poster":"","formats":["mp4","webm","ogv"]},{"name":"Red Hot Chilli Pepers - Californication","url":"/video/RedHotChiliPeppers-Californication","poster":"","formats":["mp4","webm","ogv"]},{"name":"Survivor - Eye of the Tiger","url":"/video/Survivor-EyeOfTheTiger","poster":"","formats":["mp4","webm","ogv"]}]}
 
 /***/ }),
 /* 4 */
@@ -10708,7 +10768,7 @@ exports = module.exports = __webpack_require__(6)(false);
 
 
 // module
-exports.push([module.i, "* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; }\n\nsection {\n  height: 80vh;\n  display: flex;\n  flex-wrap: wrap; }\n\nheader {\n  border: thin solid red;\n  height: 10vh; }\n\n.viewer {\n  border: thin solid green;\n  width: 75%;\n  display: flex;\n  flex-direction: column; }\n  .viewer .controls {\n    border: thin solid yellow;\n    height: 15%; }\n  .viewer video, .viewer img {\n    height: 85%; }\n\n.playList {\n  border: thin solid violet;\n  width: 25%;\n  height: 100%; }\n\nfooter {\n  border: thin solid blue;\n  height: 10vh; }\n\n.controls {\n  user-select: none; }\n  .controls span {\n    cursor: pointer; }\n  .controls .progressBar {\n    height: 10px;\n    border: thin solid;\n    display: flex; }\n    .controls .progressBar:hover:after {\n      content: 'x';\n      position: relative;\n      height: 15px;\n      width: 15px;\n      top: -3px;\n      left: -2.5px;\n      color: transparent;\n      border-radius: 50%;\n      background-color: black; }\n    .controls .progressBar .progressedTimeBar {\n      width: 0;\n      background: black; }\n\nheader img {\n  height: 10vh;\n  margin-left: 1%; }\n\n#volumeController {\n  display: inline-block;\n  position: relative;\n  height: 50%; }\n  #volumeController svg {\n    height: 100%; }\n  #volumeController #hidden {\n    fill: white; }\n  #volumeController div {\n    position: absolute;\n    top: 0;\n    left: 0;\n    z-index: -1;\n    width: 100%;\n    height: 100%;\n    background-color: green; }\n", ""]);
+exports.push([module.i, "* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; }\n\nsection {\n  height: 80vh;\n  display: flex;\n  flex-wrap: wrap; }\n\nheader {\n  height: 10vh; }\n\n.viewer {\n  width: 75%;\n  display: flex;\n  flex-direction: column; }\n  .viewer .controls {\n    height: 15%; }\n    @media screen and (max-width: 700px) {\n      .viewer .controls {\n        height: 30%; } }\n  .viewer video, .viewer img {\n    height: 85%; }\n  @media screen and (max-width: 700px) {\n    .viewer {\n      position: relative;\n      width: 95%; } }\n\n.playList {\n  width: 25%;\n  border: thin  solid;\n  height: 100%; }\n  @media screen and (max-width: 700px) {\n    .playList {\n      width: 0;\n      overflow: hidden;\n      position: absolute;\n      transition: 1s;\n      right: 0;\n      background-color: rgba(255, 255, 255, 0.8);\n      border: none; } }\n\nfooter {\n  height: 10vh; }\n\n.togglePlayList {\n  display: none; }\n  @media screen and (max-width: 700px) {\n    .togglePlayList {\n      display: block;\n      width: 5%; } }\n\n.showPlayList {\n  width: 100%; }\n\nbody {\n  background-color: lightblue; }\n\n.controls {\n  border: thin solid;\n  padding: 1%;\n  user-select: none;\n  display: flex;\n  flex-wrap: wrap; }\n  .controls span {\n    cursor: pointer; }\n  .controls > .buttons {\n    text-align: center;\n    flex-basis: 50%; }\n    .controls > .buttons span {\n      margin: 1%;\n      padding: 2%;\n      display: inline-block;\n      border-radius: 50%;\n      transition: .5s; }\n      .controls > .buttons span:hover {\n        transform: scale(1.2);\n        background-color: #8c0396; }\n  .controls > .progress {\n    flex-basis: 100%; }\n    .controls > .progress .progressBar {\n      height: 10px;\n      border: thin solid;\n      display: flex; }\n      .controls > .progress .progressBar:hover:after {\n        content: 'x';\n        position: relative;\n        height: 15px;\n        width: 15px;\n        top: -3px;\n        left: -2.5px;\n        color: transparent;\n        border-radius: 50%;\n        background-color: #8c0396; }\n      .controls > .progress .progressBar .progressedTimeBar {\n        width: 0;\n        background: #8c0396; }\n  .controls .captions {\n    flex-basis: 25%; }\n  .controls .volume {\n    flex-basis: 25%;\n    text-align: right; }\n    @media screen and (max-width: 500px) {\n      .controls .volume {\n        text-align: left; } }\n    .controls .volume #volumeController {\n      display: inline-block;\n      position: relative;\n      height: 50%; }\n      @media screen and (max-width: 700px) {\n        .controls .volume #volumeController {\n          width: 50%;\n          height: 50%; } }\n      .controls .volume #volumeController svg {\n        height: 100%; }\n        .controls .volume #volumeController svg:hover #volumeViewer {\n          stroke: green; }\n      .controls .volume #volumeController #hidden {\n        fill: lightblue; }\n      .controls .volume #volumeController #volumeViewer {\n        stroke: transparent;\n        transition: .3s; }\n      .controls .volume #volumeController div {\n        position: absolute;\n        top: 1px;\n        left: 0;\n        z-index: -1;\n        width: 100%;\n        height: 98%;\n        background-color: green; }\n\nheader {\n  display: flex; }\n  header h1 {\n    flex-basis: 50%;\n    text-align: center; }\n  header img {\n    flex-basis: 25%;\n    height: 10vh;\n    margin: 0 2%; }\n  header div {\n    flex-basis: 25%;\n    display: flex;\n    align-items: center;\n    justify-content: center; }\n  header #login {\n    display: inline-block;\n    background-color: #8c0396;\n    width: 50%;\n    height: 50%;\n    align-items: center;\n    font-size: 1.3em;\n    padding: 1% 2%;\n    cursor: pointer;\n    border-bottom: thick solid; }\n    @media screen and (max-width: 700px) {\n      header #login {\n        width: 75%;\n        padding: 3%; } }\n\n.playList p {\n  padding: 2%;\n  transition: .5s;\n  cursor: pointer; }\n  .playList p:hover {\n    background-color: violet; }\n\n.playList .playing {\n  background-color: #8c0396; }\n  .playList .playing:hover {\n    background-color: #8c0396; }\n\n.volume {\n  height: 50px; }\n", ""]);
 
 // exports
 

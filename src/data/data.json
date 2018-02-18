@@ -2,55 +2,67 @@
     "audio":[
         {
             "name":"Back in Black",            
-            "url":"/audio/AC_DC-BackInBlack.mp3",
-            "poster":"/img/acdc.jpg"
+            "url":"/audio/AC_DC-BackInBlack",
+            "poster":"/img/acdc.jpg",
+            "formats":["mp3","ogg"]
         },
         {
             "name":"Highway to Hell",            
-            "url":"/audio/AC_DC-HighwayToHell.mp3",
-            "poster":"/img/acdc.jpg"
+            "url":"/audio/AC_DC-HighwayToHell",
+            "poster":"/img/acdc.jpg",
+            "formats":["mp3","ogg"]
         },
         {
             "name":"Don't worry be Happy",            
-            "url":"/audio/BobMarley-Don'tworrybeHappy.mp3",
-            "poster":"/img/bobmarley.jpg"
+            "url":"/audio/BobMarley-Don'tworrybeHappy",
+            "poster":"/img/bobmarley.jpg",
+            "formats":["mp3","ogg"]
         },
         {
             "name":"Is this love",            
-            "url":"/audio/BobMarley-IsthisLove.mp3",
-            "poster":"/img/bobmarley.jpg"
+            "url":"/audio/BobMarley-IsthisLove",
+            "poster":"/img/bobmarley.jpg",
+            "formats":["mp3","ogg"]
         },
         {
             "name":"No woman no cry",            
-            "url":"/audio/BobMarleyNoWomannocry.mp3",
-            "poster":"/img/bobmarley.jpg"
+            "url":"/audio/BobMarleyNoWomannocry",
+            "poster":"/img/bobmarley.jpg",
+            "formats":["mp3","ogg"]
         }
     ],
     "video":[
         {
             "name":"Truck Racer 3D",            
-            "url":"/video/gamejs.mp4",
-            "poster":""
+            "url":"/video/gamejs",
+            "poster":"",
+            "formats":["mp4","webm","ogv"],
+            "captions":["/subtitles/test.vtt"],
+            "media":["/video/gamejs.640x800"]
         },
         {
             "name":"Bon Jovi - It's my life",
-            "url":"/video/BonJovi-It'sMyLife.mp4",
-            "poster":""
+            "url":"/video/BonJovi-It'sMyLife",
+            "poster":"",
+            "formats":["mp4","webm","ogv"]
         },
         {
             "name":"Eagles - Hotel California",
-            "url":"/video/Eagles-HotelCalifornia.mp4",
-            "poster":""
+            "url":"/video/Eagles-HotelCalifornia",
+            "poster":"",
+            "formats":["mp4","webm","ogv"]
         },
         {
             "name":"Red Hot Chilli Pepers - Californication",
-            "url":"/video/RedHotChiliPeppers-Californication.mp4",
-            "poster":""
+            "url":"/video/RedHotChiliPeppers-Californication",
+            "poster":"",
+            "formats":["mp4","webm","ogv"]
         },
         {
             "name":"Survivor - Eye of the Tiger",
-            "url":"/video/Survivor-EyeOfTheTiger.mp4",
-            "poster":""
+            "url":"/video/Survivor-EyeOfTheTiger",
+            "poster":"",
+            "formats":["mp4","webm","ogv"]
         }
     ]
 }
