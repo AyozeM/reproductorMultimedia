@@ -33,7 +33,7 @@ $(document).ready(()=>{
     $(".progressBar").mousedown(e=>{
         progressBarController(e);
         $(e.currentTarget).on("mousemove",progressBarController);
-    })
+    });
     
     $("#volumeUp").click(e=>{
         let actualVolume  = actualPlayed.volume + .1;
@@ -179,6 +179,14 @@ const playerManager = e=>{
             player();
             break;
     }
+    actualPlayed.addEventListener("loadstart",e=>{
+        viewer.append(
+            $(`<i class="fas fa-spinner fa-pulse preloader"></i>`)
+        )
+    },false);
+    actualPlayed.addEventListener("loadeddata",e=>{
+        $(".preloader").remove();
+    },false);
 }
 /**
  * Se encarga de crear el html en la barra de playlist
