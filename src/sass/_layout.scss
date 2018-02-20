@@ -50,6 +50,8 @@ footer{
     display: none;
     @media screen and (max-width:$responsive){
         display: block;
+        text-align: center;
+        cursor: pointer;
         width: 5%;
     }
 }

@@ -248,10 +248,13 @@ const playerManager = e=>{
             break;
         case "video":
             let responsiveVideo = e.data("medias").split(",");
-            let captions = e.data("captions").split(",");      
-            __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".captions").append(
-                __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<span id="caption"><i class="far fa-closed-captioning"></i></span>`)
-            );
+            let captions = e.data("captions").split(",");
+            captions = captions[0]==""?[]:captions;    
+            if(captions.length > 0){
+                __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".captions").append(
+                    __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<span id="caption"><i class="far fa-closed-captioning"></i></span>`)
+                );
+            }  
             __WEBPACK_IMPORTED_MODULE_0_jquery___default()("<video>").append(
                 formats.map(y=>{
                     let tag;
@@ -270,6 +273,7 @@ const playerManager = e=>{
         viewer.append(
             __WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-spinner fa-pulse preloader"></i>`)
         )
+        totalDuration.text(`00:00`);
     },false);
     actualPlayed.addEventListener("loadeddata",e=>{
         __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".preloader").remove();
@@ -280,17 +284,18 @@ const playerManager = e=>{
  * @param {object} data 
  * @param {string} type 
  */
-const createHTML = (data,type) =>__WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<p class="${type}" data-medias="${data.media==null?"":data.media}" data-captions="${data.captions==null?"":data.captions}" data-formats="${data.formats}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
+const createHTML = (data) =>__WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<p class="${data.type}" data-medias="${data.media==null?"":data.media}" data-captions="${data.captions==null?"":data.captions}" data-formats="${data.formats}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
 
 const getMultimedia = () =>{
-    data.audio.map(e=>createHTML(e,"audio"));
-    data.video.map(e=>createHTML(e,"video"));
+/*     data.audio.map(e=>createHTML(e,"audio"));
+    data.video.map(e=>createHTML(e,"video")); */
+    data.map(e=>createHTML(e));
     __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".audio").prepend(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-headphones"></i>`))
     __WEBPACK_IMPORTED_MODULE_0_jquery___default()(".video").prepend(__WEBPACK_IMPORTED_MODULE_0_jquery___default()(`<i class="fas fa-film"></i>`))
 }
 /**
  * Pausa o reanuda
- * @param {string} state --> stado actual.
+ * @param {string} state --> estado actual.
  */
 const playPause = state =>{
     if(state == "play"){
@@ -334,11 +339,13 @@ const updateProgressBar = (currentTime,duration)=>{
  * @param {*} time 
  */
 const timeConverter = time =>{
-	let minutes = Math.trunc(time/60);
+    let minutes = Math.trunc(time/60);   
     let seconds = Math.trunc(((time/60 - minutes) * 30) / 0.5)
-    if(seconds<10){
+    minutes = minutes<10?`0${minutes}`:minutes;
+    seconds = seconds<10?`0${seconds}`:seconds;
+/*     if(seconds<10){
         seconds = '0'+seconds;
-    }
+    } */
     return `${minutes}:${seconds}`
 }
 /**
@@ -10740,7 +10747,7 @@ return jQuery;
 /* 3 */
 /***/ (function(module, exports) {
 
-module.exports = {"audio":[{"name":"Back in Black","url":"/audio/AC_DC-BackInBlack","poster":"/img/acdc.jpg","formats":["mp3","ogg"]},{"name":"Highway to Hell","url":"/audio/AC_DC-HighwayToHell","poster":"/img/acdc.jpg","formats":["mp3","ogg"]},{"name":"Don't worry be Happy","url":"/audio/BobMarley-Don'tworrybeHappy","poster":"/img/bobmarley.jpg","formats":["mp3","ogg"]},{"name":"Is this love","url":"/audio/BobMarley-IsthisLove","poster":"/img/bobmarley.jpg","formats":["mp3","ogg"]},{"name":"No woman no cry","url":"/audio/BobMarleyNoWomannocry","poster":"/img/bobmarley.jpg","formats":["mp3","ogg"]}],"video":[{"name":"Truck Racer 3D","url":"/video/gamejs","poster":"","formats":["mp4"],"captions":["/subtitles/gamejs.vtt"],"media":["640x480"]},{"name":"Bon Jovi - It's my life","url":"/video/BonJovi-It'sMyLife","poster":"","formats":["mp4","webm","ogv"]},{"name":"Eagles - Hotel California","url":"/video/Eagles-HotelCalifornia","poster":"","formats":["mp4","webm","ogv"]},{"name":"Red Hot Chilli Pepers - Californication","url":"/video/RedHotChiliPeppers-Californication","poster":"","formats":["mp4","webm","ogv"]},{"name":"Survivor - Eye of the Tiger","url":"/video/Survivor-EyeOfTheTiger","poster":"","formats":["mp4","webm","ogv"]}]}
+module.exports = [{"type":"audio","name":"Back in Black","url":"/audio/AC_DC-BackInBlack","poster":"/img/acdc.jpg","formats":["mp3","ogg"]},{"type":"video","name":"Truck Racer 3D","url":"/video/gamejs","formats":["mp4,webm,ogv"],"captions":["/subtitles/gamejs.vtt"],"media":["640x480"]},{"type":"audio","name":"Highway to Hell","url":"/audio/AC_DC-HighwayToHell","poster":"/img/acdc.jpg","formats":["mp3","ogg"]},{"type":"video","name":"Bon Jovi - It's my life","url":"/video/BonJovi-It'sMyLife","formats":["mp4","webm","ogv"]},{"type":"audio","name":"Don't worry be Happy","url":"/audio/BobMarley-Don'tworrybeHappy","poster":"/img/bobmarley.jpg","formats":["mp3","ogg"]},{"type":"video","name":"Red Hot Chilli Pepers - Californication","url":"/video/RedHotChiliPeppers-Californication","formats":["mp4","webm","ogv"]},{"type":"audio","name":"Is this love","url":"/audio/BobMarley-IsthisLove","poster":"/img/bobmarley.jpg","formats":["mp3","ogg"]},{"type":"video","name":"Eagles - Hotel California","url":"/video/Eagles-HotelCalifornia","formats":["mp4","webm","ogv"]},{"type":"audio","name":"No woman no cry","url":"/audio/BobMarleyNoWomannocry","poster":"/img/bobmarley.jpg","formats":["mp3","ogg"]},{"type":"video","name":"Survivor - Eye of the Tiger","url":"/video/Survivor-EyeOfTheTiger","formats":["mp4","webm","ogv"]}]
 
 /***/ }),
 /* 4 */
@@ -10782,7 +10789,7 @@ exports = module.exports = __webpack_require__(6)(false);
 
 
 // module
-exports.push([module.i, "* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; }\n\nsection {\n  height: 80vh;\n  display: flex;\n  flex-wrap: wrap; }\n\nheader {\n  height: 10vh; }\n\n.viewer {\n  width: 75%;\n  display: flex;\n  flex-direction: column; }\n  .viewer .controls {\n    height: 15%; }\n    @media screen and (max-width: 700px) {\n      .viewer .controls {\n        height: 30%; } }\n  .viewer video, .viewer img {\n    height: 85%; }\n  @media screen and (max-width: 700px) {\n    .viewer {\n      position: relative;\n      width: 95%; } }\n\n.playList {\n  width: 25%;\n  border: thin  solid;\n  height: 100%; }\n  @media screen and (max-width: 700px) {\n    .playList {\n      width: 0;\n      overflow: hidden;\n      position: absolute;\n      transition: 1s;\n      right: 0;\n      background-color: rgba(255, 255, 255, 0.8);\n      border: none; } }\n\nfooter {\n  height: 10vh; }\n\n.togglePlayList {\n  display: none; }\n  @media screen and (max-width: 700px) {\n    .togglePlayList {\n      display: block;\n      width: 5%; } }\n\n.showPlayList {\n  width: 100%; }\n\nbody {\n  background-color: lightblue; }\n\n.controls {\n  border: thin solid;\n  padding: 1%;\n  user-select: none;\n  display: flex;\n  flex-wrap: wrap; }\n  .controls span {\n    cursor: pointer; }\n  .controls > .buttons {\n    text-align: center;\n    flex-basis: 50%; }\n    .controls > .buttons span {\n      margin: 1%;\n      padding: 2%;\n      display: inline-block;\n      border-radius: 50%;\n      transition: .5s; }\n      .controls > .buttons span:hover {\n        transform: scale(1.2);\n        background-color: #8c0396; }\n  .controls > .progress {\n    flex-basis: 100%; }\n    .controls > .progress .progressBar {\n      height: 10px;\n      border: thin solid;\n      display: flex; }\n      .controls > .progress .progressBar:hover:after {\n        content: 'x';\n        position: relative;\n        height: 15px;\n        width: 15px;\n        top: -3px;\n        left: -2.5px;\n        color: transparent;\n        border-radius: 50%;\n        background-color: #8c0396; }\n      .controls > .progress .progressBar .progressedTimeBar {\n        width: 0;\n        background: #8c0396; }\n  .controls .captions {\n    flex-basis: 25%; }\n  .controls .volume {\n    flex-basis: 25%;\n    text-align: right; }\n    @media screen and (max-width: 500px) {\n      .controls .volume {\n        text-align: left; } }\n    .controls .volume #volumeController {\n      display: inline-block;\n      position: relative;\n      height: 50%; }\n      @media screen and (max-width: 500px) {\n        .controls .volume #volumeController {\n          width: 50%;\n          height: 50%; } }\n      .controls .volume #volumeController svg {\n        height: 100%; }\n        .controls .volume #volumeController svg:hover #volumeViewer {\n          stroke: green; }\n      .controls .volume #volumeController #hidden {\n        fill: lightblue; }\n      .controls .volume #volumeController #volumeViewer {\n        stroke: transparent;\n        transition: .3s; }\n      .controls .volume #volumeController div {\n        position: absolute;\n        top: 1px;\n        left: 0;\n        z-index: -1;\n        width: 100%;\n        height: 98%;\n        background-color: green; }\n\nheader {\n  display: flex; }\n  header h1 {\n    padding-top: 1%;\n    flex-basis: 50%;\n    text-align: center;\n    font-family: 'Open Sans', sans-serif; }\n  header span {\n    flex-basis: 25%; }\n    header span img {\n      height: 10vh; }\n  header div {\n    flex-basis: 25%;\n    display: flex;\n    align-items: center;\n    justify-content: center; }\n  header #login {\n    display: inline-block;\n    background-color: #8c0396;\n    height: 50%;\n    align-items: center;\n    font-size: 1.2em;\n    padding: 1% 2%;\n    cursor: pointer;\n    border-bottom: thick solid; }\n    @media screen and (max-width: 500px) {\n      header #login {\n        width: 75%;\n        padding: 3%; } }\n\n.playList p {\n  padding: 2%;\n  transition: .5s;\n  cursor: pointer; }\n  .playList p:hover {\n    background-color: violet; }\n\n.playList .playing {\n  background-color: #8c0396; }\n  .playList .playing:hover {\n    background-color: #8c0396; }\n\n.volume {\n  height: 50px; }\n\n.preloader {\n  font-size: 3em;\n  color: white;\n  position: absolute;\n  top: 50%;\n  left: 50%; }\n\nvideo {\n  background: black; }\n\n.viewer {\n  position: relative; }\n", ""]);
+exports.push([module.i, "* {\n  margin: 0;\n  padding: 0;\n  box-sizing: border-box;\n  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; }\n\nsection {\n  height: 80vh;\n  display: flex;\n  flex-wrap: wrap; }\n\nheader {\n  height: 10vh; }\n\n.viewer {\n  width: 75%;\n  display: flex;\n  flex-direction: column; }\n  .viewer .controls {\n    height: 15%; }\n    @media screen and (max-width: 700px) {\n      .viewer .controls {\n        height: 30%; } }\n  .viewer video, .viewer img {\n    height: 85%; }\n  @media screen and (max-width: 700px) {\n    .viewer {\n      position: relative;\n      width: 95%; } }\n\n.playList {\n  width: 25%;\n  border: thin  solid;\n  height: 100%; }\n  @media screen and (max-width: 700px) {\n    .playList {\n      width: 0;\n      overflow: hidden;\n      position: absolute;\n      transition: 1s;\n      right: 0;\n      background-color: rgba(255, 255, 255, 0.8);\n      border: none; } }\n\nfooter {\n  height: 10vh; }\n\n.togglePlayList {\n  display: none; }\n  @media screen and (max-width: 700px) {\n    .togglePlayList {\n      display: block;\n      text-align: center;\n      cursor: pointer;\n      width: 5%; } }\n\n.showPlayList {\n  width: 100%; }\n\nbody {\n  background-color: lightblue; }\n\n.controls {\n  border: thin solid;\n  padding: 1%;\n  user-select: none;\n  display: flex;\n  flex-wrap: wrap; }\n  .controls span {\n    cursor: pointer; }\n  .controls > .buttons {\n    text-align: center;\n    flex-basis: 50%; }\n    .controls > .buttons span {\n      margin: 1%;\n      padding: 2%;\n      display: inline-block;\n      border-radius: 50%;\n      transition: .5s; }\n      .controls > .buttons span:hover {\n        transform: scale(1.2);\n        background-color: #8c0396; }\n    @media screen and (max-width: 460px) {\n      .controls > .buttons {\n        font-size: 1.5em; } }\n  .controls > .progress {\n    flex-basis: 100%; }\n    .controls > .progress .progressBar {\n      height: 10px;\n      border: thin solid;\n      display: flex; }\n      .controls > .progress .progressBar:hover:after {\n        content: 'x';\n        position: relative;\n        height: 15px;\n        width: 15px;\n        top: -3px;\n        left: -2.5px;\n        color: transparent;\n        border-radius: 50%;\n        background-color: #8c0396; }\n      .controls > .progress .progressBar .progressedTimeBar {\n        width: 0;\n        background: #8c0396; }\n  .controls .captions {\n    flex-basis: 25%; }\n    @media screen and (max-width: 460px) {\n      .controls .captions {\n        font-size: 1.5em; } }\n  .controls .volume {\n    flex-basis: 25%;\n    text-align: right; }\n    @media screen and (max-width: 500px) {\n      .controls .volume {\n        text-align: left; } }\n    .controls .volume #volumeController {\n      display: inline-block;\n      position: relative;\n      height: 50%; }\n      @media screen and (max-width: 500px) {\n        .controls .volume #volumeController {\n          width: 50%;\n          height: 50%; } }\n      .controls .volume #volumeController svg {\n        height: 100%; }\n        .controls .volume #volumeController svg:hover #volumeViewer {\n          stroke: green; }\n      .controls .volume #volumeController #hidden {\n        fill: lightblue; }\n      .controls .volume #volumeController #volumeViewer {\n        stroke: transparent;\n        transition: .3s; }\n      .controls .volume #volumeController div {\n        position: absolute;\n        top: 1px;\n        left: 0;\n        z-index: -1;\n        width: 100%;\n        height: 98%;\n        background-color: green; }\n\nheader {\n  display: flex; }\n  header h1 {\n    padding-top: 1%;\n    flex-basis: 50%;\n    text-align: center;\n    font-family: 'Open Sans', sans-serif; }\n  header > span {\n    flex-basis: 25%; }\n    header > span img {\n      height: 10vh; }\n  header div {\n    flex-basis: 25%;\n    display: flex;\n    align-items: center;\n    justify-content: center; }\n  header #login {\n    display: inline-block;\n    background-color: #8c0396;\n    height: 50%;\n    font-size: 1.2em;\n    padding: 1% 2%;\n    cursor: pointer;\n    border-bottom: thick solid; }\n    header #login > svg {\n      display: inline; }\n    @media screen and (max-width: 500px) {\n      header #login {\n        width: 75%;\n        padding: 3%; } }\n    @media screen and (max-width: 460px) {\n      header #login {\n        font-size: 1em; } }\n\n.playList p {\n  padding: 2%;\n  transition: .5s;\n  cursor: pointer; }\n  .playList p:hover {\n    background-color: violet; }\n\n.playList .playing {\n  background-color: #8c0396; }\n  .playList .playing:hover {\n    background-color: #8c0396; }\n\n.volume {\n  height: 50px; }\n\n.preloader {\n  font-size: 3em;\n  color: white;\n  position: absolute;\n  top: 50%;\n  left: 50%; }\n\nvideo {\n  background: black; }\n\n.viewer {\n  position: relative; }\n\nfooter {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 1%; }\n  footer > span {\n    max-width: 50%; }\n  footer svg {\n    display: block; }\n  footer #licencia span {\n    font-size: .5em; }\n\n#close {\n  display: block;\n  padding: 1% 3%;\n  cursor: pointer; }\n\n.togglePlayList span:hover, #close:hover {\n  font-size: .7em;\n  padding-top: 2%; }\n", ""]);
 
 // exports
 

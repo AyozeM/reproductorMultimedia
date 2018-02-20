@@ -1,68 +1,69 @@
-{
-    "audio":[
-        {
-            "name":"Back in Black",            
-            "url":"/audio/AC_DC-BackInBlack",
-            "poster":"/img/acdc.jpg",
-            "formats":["mp3","ogg"]
-        },
-        {
-            "name":"Highway to Hell",            
-            "url":"/audio/AC_DC-HighwayToHell",
-            "poster":"/img/acdc.jpg",
-            "formats":["mp3","ogg"]
-        },
-        {
-            "name":"Don't worry be Happy",            
-            "url":"/audio/BobMarley-Don'tworrybeHappy",
-            "poster":"/img/bobmarley.jpg",
-            "formats":["mp3","ogg"]
-        },
-        {
-            "name":"Is this love",            
-            "url":"/audio/BobMarley-IsthisLove",
-            "poster":"/img/bobmarley.jpg",
-            "formats":["mp3","ogg"]
-        },
-        {
-            "name":"No woman no cry",            
-            "url":"/audio/BobMarleyNoWomannocry",
-            "poster":"/img/bobmarley.jpg",
-            "formats":["mp3","ogg"]
-        }
-    ],
-    "video":[
-        {
-            "name":"Truck Racer 3D",            
-            "url":"/video/gamejs",
-            "poster":"",
-            "formats":["mp4,webm,ogv"],
-            "captions":["/subtitles/gamejs.vtt"],
-            "media":["640x480"]
-        },
-        {
-            "name":"Bon Jovi - It's my life",
-            "url":"/video/BonJovi-It'sMyLife",
-            "poster":"",
-            "formats":["mp4","webm","ogv"]
-        },
-        {
-            "name":"Eagles - Hotel California",
-            "url":"/video/Eagles-HotelCalifornia",
-            "poster":"",
-            "formats":["mp4","webm","ogv"]
-        },
-        {
-            "name":"Red Hot Chilli Pepers - Californication",
-            "url":"/video/RedHotChiliPeppers-Californication",
-            "poster":"",
-            "formats":["mp4","webm","ogv"]
-        },
-        {
-            "name":"Survivor - Eye of the Tiger",
-            "url":"/video/Survivor-EyeOfTheTiger",
-            "poster":"",
-            "formats":["mp4","webm","ogv"]
-        }
-    ]
-}
+[
+    {
+        "type":"audio",
+        "name":"Back in Black",            
+        "url":"/audio/AC_DC-BackInBlack",
+        "poster":"/img/acdc.jpg",
+        "formats":["mp3","ogg"]
+    },
+    {
+        "type":"video",
+        "name":"Truck Racer 3D",            
+        "url":"/video/gamejs",
+        "formats":["mp4,webm,ogv"],
+        "captions":["/subtitles/gamejs.vtt"],
+        "media":["640x480"]
+    },
+    {
+        "type":"audio",
+        "name":"Highway to Hell",            
+        "url":"/audio/AC_DC-HighwayToHell",
+        "poster":"/img/acdc.jpg",
+        "formats":["mp3","ogg"]
+    },
+    {
+        "type":"video",
+        "name":"Bon Jovi - It's my life",
+        "url":"/video/BonJovi-It'sMyLife",
+        "formats":["mp4","webm","ogv"]
+    },
+    {
+        "type":"audio",
+        "name":"Don't worry be Happy",            
+        "url":"/audio/BobMarley-Don'tworrybeHappy",
+        "poster":"/img/bobmarley.jpg",
+        "formats":["mp3","ogg"]
+    },
+    {
+        "type":"video",
+        "name":"Red Hot Chilli Pepers - Californication",
+        "url":"/video/RedHotChiliPeppers-Californication",
+        "formats":["mp4","webm","ogv"]
+    },
+    {
+        "type":"audio",
+        "name":"Is this love",            
+        "url":"/audio/BobMarley-IsthisLove",
+        "poster":"/img/bobmarley.jpg",
+        "formats":["mp3","ogg"]
+    },
+    {
+        "type":"video",
+        "name":"Eagles - Hotel California",
+        "url":"/video/Eagles-HotelCalifornia",
+        "formats":["mp4","webm","ogv"]
+    },
+    {
+        "type":"audio",
+        "name":"No woman no cry",            
+        "url":"/audio/BobMarleyNoWomannocry",
+        "poster":"/img/bobmarley.jpg",
+        "formats":["mp3","ogg"]
+    },
+    {
+        "type":"video",
+        "name":"Survivor - Eye of the Tiger",
+        "url":"/video/Survivor-EyeOfTheTiger",
+        "formats":["mp4","webm","ogv"]
+    }            
+]

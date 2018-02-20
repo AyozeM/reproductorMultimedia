@@ -167,10 +167,13 @@ const playerManager = e=>{
             break;
         case "video":
             let responsiveVideo = e.data("medias").split(",");
-            let captions = e.data("captions").split(",");      
-            $(".captions").append(
-                $(`<span id="caption"><i class="far fa-closed-captioning"></i></span>`)
-            );
+            let captions = e.data("captions").split(",");
+            captions = captions[0]==""?[]:captions;    
+            if(captions.length > 0){
+                $(".captions").append(
+                    $(`<span id="caption"><i class="far fa-closed-captioning"></i></span>`)
+                );
+            }  
             $("<video>").append(
                 formats.map(y=>{
                     let tag;
@@ -189,6 +192,7 @@ const playerManager = e=>{
         viewer.append(
             $(`<i class="fas fa-spinner fa-pulse preloader"></i>`)
         )
+        totalDuration.text(`00:00`);
     },false);
     actualPlayed.addEventListener("loadeddata",e=>{
         $(".preloader").remove();
@@ -199,17 +203,18 @@ const playerManager = e=>{
  * @param {object} data 
  * @param {string} type 
  */
-const createHTML = (data,type) =>$(`<p class="${type}" data-medias="${data.media==null?"":data.media}" data-captions="${data.captions==null?"":data.captions}" data-formats="${data.formats}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
+const createHTML = (data) =>$(`<p class="${data.type}" data-medias="${data.media==null?"":data.media}" data-captions="${data.captions==null?"":data.captions}" data-formats="${data.formats}" data-url="${data.url}" data-poster="${data.poster}">${data.name}</p>`).appendTo(".playList")
 
 const getMultimedia = () =>{
-    data.audio.map(e=>createHTML(e,"audio"));
-    data.video.map(e=>createHTML(e,"video"));
+/*     data.audio.map(e=>createHTML(e,"audio"));
+    data.video.map(e=>createHTML(e,"video")); */
+    data.map(e=>createHTML(e));
     $(".audio").prepend($(`<i class="fas fa-headphones"></i>`))
     $(".video").prepend($(`<i class="fas fa-film"></i>`))
 }
 /**
  * Pausa o reanuda
- * @param {string} state --> stado actual.
+ * @param {string} state --> estado actual.
  */
 const playPause = state =>{
     if(state == "play"){
@@ -253,11 +258,13 @@ const updateProgressBar = (currentTime,duration)=>{
  * @param {*} time 
  */
 const timeConverter = time =>{
-	let minutes = Math.trunc(time/60);
+    let minutes = Math.trunc(time/60);   
     let seconds = Math.trunc(((time/60 - minutes) * 30) / 0.5)
-    if(seconds<10){
+    minutes = minutes<10?`0${minutes}`:minutes;
+    seconds = seconds<10?`0${seconds}`:seconds;
+/*     if(seconds<10){
         seconds = '0'+seconds;
-    }
+    } */
     return `${minutes}:${seconds}`
 }
 /**
