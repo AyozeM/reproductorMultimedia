@@ -166,12 +166,18 @@ const playerManager = e=>{
             player();
             break;
         case "video":
+            let responsiveVideo = e.data("medias").split(",");
             let captions = e.data("captions").split(",");      
             $(".captions").append(
                 $(`<span id="caption"><i class="far fa-closed-captioning"></i></span>`)
-            )
+            );
             $("<video>").append(
-                formats.map(y=>$("<source>",{src:`media${e.data("url")}.${y}`}))                
+                formats.map(y=>{
+                    let tag;
+                    let mediaquery = responsiveVideo.find(z=>window.innerWidth<=z.split("x")[0]); 
+                    mediaquery != undefined?tag = $("<source>",{src:`media${e.data("url")}.${mediaquery}.${y}`,type:`video/${y}`}):tag = $("<source>",{src:`media${e.data("url")}.${y}`,type:`video/${y}`});
+                    return tag;
+                })                
             ).append(
                 captions.map(z=>$("<track>",{src:`media${z}`,kind:"subtitles",srclang:"es"}))
             ).prependTo(viewer);

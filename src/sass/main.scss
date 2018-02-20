@@ -104,12 +104,16 @@ body{
 header{
     display: flex;
     & h1{
+        padding-top:1%;
         flex-basis: 50%;
         text-align: center;
+        font-family: 'Open Sans', sans-serif;
     }
-    & img{
+    & span{
         flex-basis: 25%;
-        height: 10vh;
+        & img{
+            height: 10vh;
+        }
     }
     & div{
         flex-basis: 25%;
@@ -120,10 +124,9 @@ header{
     & #login{
         display: inline-block;
         background-color:$secondColor;
-        width: 50%;
         height: 50%;
         align-items: center;
-        font-size: 1.3em;
+        font-size: 1.2em;
         padding:1% 2%; 
         cursor: pointer;
         border-bottom: thick solid;
@@ -160,8 +163,14 @@ header{
 .preloader{
     font-size: 3em;
     color:white;
+    position: absolute;
+    top:50%;
+    left:50%;
 }
 
 video{
     background: black;
+}
+.viewer{
+    position: relative;
 }

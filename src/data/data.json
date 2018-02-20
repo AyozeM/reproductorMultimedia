@@ -36,9 +36,9 @@
             "name":"Truck Racer 3D",            
             "url":"/video/gamejs",
             "poster":"",
-            "formats":["mp4","webm","ogv"],
-            "captions":["/subtitles/test.vtt"],
-            "media":["/video/gamejs.640x800"]
+            "formats":["mp4,webm,ogv"],
+            "captions":["/subtitles/gamejs.vtt"],
+            "media":["640x480"]
         },
         {
             "name":"Bon Jovi - It's my life",
