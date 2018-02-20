@@ -1,0 +1,43 @@
+WEBVTT
+
+00:00:01.000 --> 00:00:08.000
+Hola, mi nombre es Ayoze Martin Hernández y vamos a hacer un gameplay de mi nuevo juego hecho en JavaScript
+
+00:00:08.000 --> 00:00:11.000
+Primero vamos a hacer un pequeño tour por la aplicación
+
+00:00:11.000 --> 00:00:16.000
+Veremos las opciones de ayuda, simplemente instrucciones y el objetivo
+
+00:00:19.000 --> 00:00:22.000
+Un formulario de registros, el cual necesitaremos para crear una cuenta y poder jugar
+
+00:00:22.000 --> 00:00:25.000
+yo ya tengo una cuenta creada, así que no va a hacer falta crear una en este video
+
+00:00:25.000 --> 00:00:37.000
+Este va a ser el registro de puntaciones, el cual podremos agrupar por usuarios o por mejores puntuaciones
+
+00:00:37.000 --> 00:00:46.000
+a continuacion procederemos a jugar, para ello necesitaremos loguearnos
+
+00:00:50.000 --> 00:01:00.000
+y ya nos sale el juego, como podemos observar podemos mover el camión con las flechas de dirección (izquierda y derecha) y con la flecha de direccion arriba dejamos quieto el camión 
+
+00:01:02.000 --> 00:01:09.000
+el objetivo consiste en avanzar el mayor número de  kilómetros posible, sin perder toda la vida ni la gasolina
+
+00:01:10.000 --> 00:01:22.000
+como vemos si colisionamos con una lata de gasolina se rellenara el tanque y si colisionamos con un obstaculo se restará vida, tambien perderá vida si choca con la pared
+
+00:01:22.000 --> 00:01:41.000
+como se puede observar es el tipico runner, que a medida avanzas pues se va incrementando la dificultad (saldrán más obstáculos, menos gasolinas, la velocidad se incrementará), cada 100 kilómetros es un nuevo nivel
+
+00:01:42.000 --> 00:01:51.000
+ahora vamos a proceder a la última parte del vídeo que va a ser, notar un poco el incrementando de esa dificultad
+
+00:01:58.000 --> 00:02:10.000
+y como vemos, se va notando que es mas complicado jugar, al acabar el juego nos mostrará la puntuación obtenida y nos dejará volver a empezar una nueva partida o bien volver a la pagina principal
+
+00:02:10.000 --> 00:02:14.000
+y esto es todo, ¡Hasta pronto!
